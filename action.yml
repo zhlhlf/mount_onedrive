@@ -1,0 +1,37 @@
+name: 'mount onedrive'
+author: 'zhlhlf'
+description: 'mount onedrive'
+inputs:
+  rkey:
+    description: 'rkey'
+    required: false
+    default: '0000'
+  file:
+    description: 'mount file'
+    required: false
+    default: '临时存放文件'
+  
+runs:
+  using: "composite"
+  steps: 
+    - run: |
+        #$GITHUB_ACTION_PATH/${{ inputs.mode }}2actions.sh
+        curl https://rclone.org/install.sh | sudo bash
+        mkdir /home/runner/.config/rclone/ || echo "明"
+        mv $GITHUB_ACTION_PATH/rclone.conf /home/runner/.config/rclone/rclone.conf
+        mkdir zhlhlf || echo "明"
+        expect <<EOF
+        spawn rclone mount onedrive:/临时存放文件 ./zhlhlf --umask 000 --daemon
+        set timeout 4
+        expect "*\npassword:" 
+        send "${{ inputs.rkey }}\r"
+        expect eof
+        EOF        echo "\n"
+        ls 666
+        echo "\n"
+        rclone copy 666 zhlhlf/ 
+        ls zhlhlf
+     shell: bash
+branding:
+  icon: 'terminal'
+  color: 'gray-dark'
